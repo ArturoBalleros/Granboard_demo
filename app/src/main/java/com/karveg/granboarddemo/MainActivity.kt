@@ -159,8 +159,10 @@ class MainActivity : ComponentActivity() {
             if (editText.text != null) {
                 val dataDart: DartData? =
                     DataStore.dartDataList.find { it.value == editText.text.toString() }
-                if (dataDart != null)
+                if (dataDart != null) {
                     showShot(dataDart.dataBoard)
+                    editText.setText("")
+                }
             }
         }
     }
@@ -288,8 +290,7 @@ class MainActivity : ComponentActivity() {
         ) {
             characteristic?.let {
                 val data: ByteArray = it.value
-                Log.i("GattCallback", "Notificación recibida: ${data}")
-
+                showShot(byteArrayToString(data))
             }
         }
     }
