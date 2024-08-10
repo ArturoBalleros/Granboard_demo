@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Granboard Demo</string>
+    <string name="svg_file">Board Svg</string>
 </resources>
