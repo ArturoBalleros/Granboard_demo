@@ -38,7 +38,7 @@ import com.karveg.granboarddemo.models.DartData
 import com.karveg.granboarddemo.models.LedData
 import com.karveg.granboarddemo.models.RGB
 import com.karveg.granboarddemo.store.DataStore
-//import com.lb.vector_child_finder_library.VectorChildFinder
+import com.lb.vector_child_finder_library.VectorChildFinder
 import java.util.UUID
 import kotlin.math.abs
 
@@ -57,6 +57,7 @@ class MainActivity : ComponentActivity() {
 
     private lateinit var buttonScan: Button
     private lateinit var buttonConnect: Button
+    private lateinit var buttonSend: Button
     private lateinit var listView: ListView
     private lateinit var editText: EditText
     private lateinit var imageView: ImageView
@@ -116,10 +117,12 @@ class MainActivity : ComponentActivity() {
 
         buttonScan = findViewById(R.id.scan_button)
         buttonConnect = findViewById(R.id.stateConnection)
+        buttonSend = findViewById(R.id.sendShot)
         listView = findViewById(R.id.devices_list)
         editText = findViewById(R.id.text)
         imageView = findViewById<ImageView>(R.id.imageView)
         vectorDrawable = ContextCompat.getDrawable(this, R.drawable.dartboard)!!
+        editText.setText("D20")
 
         buttonScan.setOnClickListener {
             if (!scanning) startScan() else stopScan()
@@ -145,8 +148,19 @@ class MainActivity : ComponentActivity() {
         buttonConnect.setOnClickListener {
             if (connected) {
                 gattDeviceDiana?.close()
-                runOnUiThread { buttonConnect.text = "Disconnected"; listView.visibility = View.VISIBLE }
+                runOnUiThread {
+                    buttonConnect.text = "Disconnected"; listView.visibility = View.VISIBLE
+                }
                 connected = false;
+            }
+        }
+
+        buttonSend.setOnClickListener {
+            if (editText.text != null) {
+                val dataDart: DartData? =
+                    DataStore.dartDataList.find { it.value == editText.text.toString() }
+                if (dataDart != null)
+                    showShot(dataDart.dataBoard)
             }
         }
     }
@@ -295,7 +309,8 @@ class MainActivity : ComponentActivity() {
                     if ((characteristicsWrite.properties and BluetoothGattCharacteristic.PROPERTY_WRITE) == 0) return
 
                     characteristicsWrite.value = data
-                    val success = gattDeviceDiana?.writeCharacteristic(characteristicsWrite) ?: false
+                    val success =
+                        gattDeviceDiana?.writeCharacteristic(characteristicsWrite) ?: false
                     if (!success) {
                         Log.e("GattCallback", "Failed to write characteristic!")
                     } else {
@@ -382,7 +397,7 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        //sendDataToCharacteristic(dataled)
+        sendDataToCharacteristic(dataled)
     }
 
     //endregion

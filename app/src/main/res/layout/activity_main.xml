@@ -1,42 +1,72 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
-    <Button
-        android:id="@+id/scan_button"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="Scan for Devices" />
+        android:orientation="horizontal">
 
+        <Button
+            android:id="@+id/scan_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_gravity="center"
+            android:layout_margin="10dp"
+            android:textSize="18sp"
+            android:text="Scan for Devices" />
+
+        <Button
+            android:id="@+id/stateConnection"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_gravity="center"
+            android:layout_margin="10dp"
+            android:textSize="18sp"
+            />
+    </LinearLayout>
 
     <ListView
         android:id="@+id/devices_list"
         android:layout_width="match_parent"
         android:layout_height="100dp" />
 
-    <EditText
-        android:id="@+id/text"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:text="D20"
-        />
-
-
-    <Button
-        android:id="@+id/stateConnection"
-        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:textSize="20sp" />
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/text"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="50dp"
+            android:layout_gravity="center"
+            android:layout_margin="10dp"
+            android:hint="S1_[S|B] || D1 || T1"
+            android:textAlignment="center"/>
+
+        <Button
+            android:id="@+id/sendShot"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_gravity="center"
+            android:layout_margin="10dp"
+            android:textSize="18sp"
+            android:text="Send Shot"
+            />
+    </LinearLayout>
 
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:src="@drawable/dartboard"
-        android:contentDescription="@string/svg_file"/>
+        android:contentDescription="@string/svg_file"
+        android:src="@drawable/dartboard" />
 
 </LinearLayout>
