@@ -8,6 +8,7 @@ import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothGattCallback
 import android.bluetooth.BluetoothGattCharacteristic
 import android.bluetooth.BluetoothGattDescriptor
+import android.bluetooth.BluetoothGattService
 import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothProfile
 import android.bluetooth.le.BluetoothLeScanner
@@ -21,6 +22,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
@@ -227,69 +229,85 @@ class MainActivity : ComponentActivity() {
     //endregion
 
     //region BLE - Gatt
+    @Suppress("DEPRECATION")
     @SuppressLint("MissingPermission")
     private val gattCallback = object : BluetoothGattCallback() {
 
         override fun onConnectionStateChange(gatt: BluetoothGatt?, status: Int, newState: Int) {
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 Log.i("GattCallback", "Conectado al GATT server.")
-                runOnUiThread { buttonConnect.text = "Connected" }
+                runOnUiThread { buttonConnect.text = "Connected"; listView.visibility = View.GONE }
                 connected = true;
                 gatt?.discoverServices()
-            } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-                Log.i("GattCallback", "Desconectado del GATT server.")
-                runOnUiThread { buttonConnect.text = "Disconnected" }
-                connected = false;
-                gatt?.close()
             }
         }
 
         override fun onServicesDiscovered(gatt: BluetoothGatt?, status: Int) {
-            if (status == BluetoothGatt.GATT_SUCCESS) {
-                // Reemplaza con los UUIDs de tu servicio y característica específicos
-                val serviceUUID = UUID.fromString("442f1570-8a00-9a28-cbe1-e1d4212d53eb")
-                val characteristicUUID = UUID.fromString("442f1571-8a00-9a28-cbe1-e1d4212d53eb")
+            if (status == BluetoothGatt.GATT_SUCCESS && gatt != null) {
 
-                // Aquí puedes acceder a los servicios y características
-                val service = gatt?.getService(serviceUUID)
-                val characteristic: BluetoothGattCharacteristic? =
-                    service?.getCharacteristic(characteristicUUID)
+                var mainService: BluetoothGattService? =
+                    gatt.services.find { it.characteristics.size == 2 }
+                if (mainService != null) {
+                    var characteristicsNotify: BluetoothGattCharacteristic? =
+                        mainService.characteristics.find { it.descriptors.size == 1 }
+                    if (characteristicsNotify != null) {
 
-                if (characteristic != null) {
+                        // Verificar propiedades de la característica
+                        if ((characteristicsNotify.properties and BluetoothGattCharacteristic.PROPERTY_NOTIFY) == 0)
+                            return
 
-                    gatt.readCharacteristic(characteristic)
+                        gatt.readCharacteristic(characteristicsNotify)
 
-                    // Subscribirse a notificaciones
-                    gatt.setCharacteristicNotification(characteristic, true)
+                        // Subscribirse a notificaciones
+                        gatt.setCharacteristicNotification(characteristicsNotify, true)
 
-                    // Configurar el Client Characteristic Configuration Descriptor (CCCD)
-                    val descriptor =
-                        characteristic.getDescriptor(UUID.fromString("00002902-0000-1000-8000-00805f9b34fb"))
-                    descriptor.let {
-                        // Leer el descriptor
-                        it.value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
-                        gatt.writeDescriptor(it)
+                        // Configurar el Client Characteristic Configuration Descriptor (CCCD)
+                        val descriptor =
+                            characteristicsNotify.getDescriptor(characteristicsNotify.descriptors[0].uuid)
+                        descriptor.let {
+                            // Leer el descriptor
+                            it.value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
+                            gatt.writeDescriptor(it)
+                        }
                     }
-
-                    Log.w("GattCallback", "Connectado 100%")
-                } else {
-                    Log.w("GattCallback", "Característica no encontrada")
                 }
-
-
             }
         }
 
-        @Suppress("DEPRECATION")
         @Deprecated("Deprecated in Java - API 33")
         override fun onCharacteristicChanged(
-            gatt: BluetoothGatt?,
-            characteristic: BluetoothGattCharacteristic?
+            gatt: BluetoothGatt?, characteristic: BluetoothGattCharacteristic?
         ) {
             characteristic?.let {
                 val data: ByteArray = it.value
                 Log.i("GattCallback", "Notificación recibida: ${data}")
 
+            }
+        }
+    }
+
+    @Suppress("DEPRECATION")
+    @SuppressLint("MissingPermission")
+    private fun sendDataToCharacteristic(data: ByteArray) {
+        if (gattDeviceDiana != null) {
+            var mainService: BluetoothGattService? =
+                gattDeviceDiana!!.services.find { it.characteristics.size == 2 }
+            if (mainService != null) {
+                var characteristicsWrite: BluetoothGattCharacteristic? =
+                    mainService.characteristics.find { it.descriptors.size == 0 }
+                if (characteristicsWrite != null) {
+
+                    // Verificar propiedades de la característica
+                    if ((characteristicsWrite.properties and BluetoothGattCharacteristic.PROPERTY_WRITE) == 0) return
+
+                    characteristicsWrite.value = data
+                    val success = gattDeviceDiana?.writeCharacteristic(characteristicsWrite) ?: false
+                    if (!success) {
+                        Log.e("GattCallback", "Failed to write characteristic!")
+                    } else {
+                        Log.i("GattCallback", "Characteristic written successfully")
+                    }
+                }
             }
         }
     }
