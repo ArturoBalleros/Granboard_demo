@@ -5,29 +5,31 @@
     android:orientation="vertical">
 
     <LinearLayout
+        style="?android:attr/buttonBarStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
         <Button
             android:id="@+id/scan_button"
+            style="?android:attr/buttonBarButtonStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:layout_gravity="center"
             android:layout_margin="10dp"
-            android:textSize="18sp"
-            android:text="Scan for Devices" />
+            android:layout_weight="1"
+            android:text="Scan for Devices"
+            android:textSize="18sp" />
 
         <Button
             android:id="@+id/stateConnection"
+            style="?android:attr/buttonBarButtonStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:layout_gravity="center"
             android:layout_margin="10dp"
-            android:textSize="18sp"
-            />
+            android:layout_weight="1"
+            android:textSize="18sp" />
     </LinearLayout>
 
     <ListView
@@ -43,29 +45,39 @@
         <EditText
             android:id="@+id/text"
             android:layout_width="0dp"
-            android:layout_weight="1"
             android:layout_height="50dp"
             android:layout_gravity="center"
             android:layout_margin="10dp"
+            android:layout_weight="1"
             android:hint="S1_[S|B] || D1 || T1"
-            android:textAlignment="center"/>
+            android:textAlignment="center" />
 
         <Button
             android:id="@+id/sendShot"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:layout_gravity="center"
             android:layout_margin="10dp"
-            android:textSize="18sp"
+            android:layout_weight="1"
             android:text="Send Shot"
-            />
+            android:textSize="18sp" />
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/shotView"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:textAlignment="center"
+        android:textSize="30sp" />
 
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
         android:contentDescription="@string/svg_file"
         android:src="@drawable/dartboard" />
 

@@ -28,6 +28,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.ListView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
@@ -60,6 +61,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var buttonSend: Button
     private lateinit var listView: ListView
     private lateinit var editText: EditText
+    private lateinit var shotView: TextView
     private lateinit var imageView: ImageView
     private lateinit var vectorDrawable: Drawable
 
@@ -120,6 +122,7 @@ class MainActivity : ComponentActivity() {
         buttonSend = findViewById(R.id.sendShot)
         listView = findViewById(R.id.devices_list)
         editText = findViewById(R.id.text)
+        shotView = findViewById(R.id.shotView)
         imageView = findViewById<ImageView>(R.id.imageView)
         vectorDrawable = ContextCompat.getDrawable(this, R.drawable.dartboard)!!
         editText.setText("D20")
@@ -333,6 +336,7 @@ class MainActivity : ComponentActivity() {
     fun showShot(boardValue: String) {
         val dataDart: DartData? = DataStore.dartDataList.find { it.dataBoard == boardValue }
         if (dataDart != null) {
+            shotView.setText(dataDart.value)
             drawShot(dataDart.pathBoard, dataDart.pathLbl)
             turnOnLed(dataDart.value)
         }
