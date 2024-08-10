@@ -16,6 +16,7 @@ import android.bluetooth.le.ScanResult
 import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Color
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -30,8 +31,10 @@ import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import com.karveg.granboarddemo.models.DartData
 import com.karveg.granboarddemo.models.LedData
+import com.karveg.granboarddemo.models.RGB
 import com.karveg.granboarddemo.store.DataStore
 import com.lb.vector_child_finder_library.VectorChildFinder
 import java.util.UUID
@@ -54,6 +57,8 @@ class MainActivity : ComponentActivity() {
     private lateinit var buttonConnect: Button
     private lateinit var listView: ListView
     private lateinit var editText: EditText
+    private lateinit var imageView: ImageView
+    private lateinit var vectorDrawable: Drawable
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -111,6 +116,8 @@ class MainActivity : ComponentActivity() {
         buttonConnect = findViewById(R.id.stateConnection)
         listView = findViewById(R.id.devices_list)
         editText = findViewById(R.id.text)
+        imageView = findViewById<ImageView>(R.id.imageView)
+        vectorDrawable = ContextCompat.getDrawable(this, R.drawable.dartboard)!!
 
         buttonScan.setOnClickListener {
             if (!scanning) startScan() else stopScan()
@@ -134,33 +141,8 @@ class MainActivity : ComponentActivity() {
 
         buttonConnect.setOnClickListener {
 
-
-            // Obtener la referencia al ImageView
-            val imageView = findViewById<ImageView>(R.id.imageView)
-
-
-            // Obtener el VectorDrawable
-            val vectorDrawable = ContextCompat.getDrawable(this, R.drawable.dartboard)
-
-            imageView.setImageDrawable(vectorDrawable)
-            val vector: VectorChildFinder = VectorChildFinder(this, R.drawable.dartboard, imageView)
-
-            val dataDart: DartData? = DataStore.dartDataList.find { it.value == editText.text.toString() }
-
-            if(dataDart != null){
-
-                val x = vector.findPathByName(dataDart.pathBoard)
-                if (x != null) x.setFillColor(Color.BLUE)
-
-                val l = vector.findPathByName(dataDart.pathLbl)
-                if (l != null) l.setFillColor(Color.YELLOW)
-
-                imageView.invalidate();
-
-            }
-
-
-
+            val shot = DataStore.dartDataList.find { it.pathBoard == editText.text.toString() }!!
+            showShot(shot.dataBoard)
 
             /*   if (connected) {
                    //Desconectarse
@@ -313,4 +295,83 @@ class MainActivity : ComponentActivity() {
     }
     //endregion
 
+    //region ShowShot
+    private fun byteArrayToString(byteArray: ByteArray): String {
+        return byteArray
+            .map { it.toInt().toChar() } // Convierte cada byte a Char
+            .joinToString("") // Une los caracteres en un único String
+    }
+
+    fun showShot(boardValue: String) {
+        val dataDart: DartData? = DataStore.dartDataList.find { it.dataBoard == boardValue }
+        if (dataDart != null) {
+            drawShot(dataDart.pathBoard, dataDart.pathLbl)
+            turnOnLed(dataDart.value)
+        }
+    }
+
+    fun drawShot(pathBoardValue: String, pathLblValue: String) {
+        imageView.setImageDrawable(vectorDrawable)
+        val vector: VectorChildFinder = VectorChildFinder(this, R.drawable.dartboard, imageView)
+
+        val x = vector.findPathByName(pathBoardValue)
+        if (x != null) x.setFillColor(Color.BLUE)
+
+        val l = vector.findPathByName(pathLblValue)
+        if (l != null) l.setFillColor(Color.RED)
+
+        imageView.invalidate();
+    }
+
+    fun turnOnLed(
+        shotValue: String,
+        ledColor1: RGB = RGB.RED,
+        ledColor2: RGB = RGB.BLUE,
+        ledColor3: RGB = RGB.GREEN
+    ) {
+        val dataled = ByteArray(11) { 0 }
+
+        //Color Led 1
+        dataled[1] = ledColor1.red
+        dataled[2] = ledColor1.green
+        dataled[3] = ledColor1.blue
+
+        val mult = shotValue[0]
+        val value = shotValue.substring(1).toInt()
+        //val dataLedStore =
+        dataled[10] = DataStore.ledDataList[value].led
+
+        when (mult) {
+            'D' -> {
+                //Animación
+                dataled[0] = 0x02
+                //Color Led 2
+                dataled[4] = ledColor2.red
+                dataled[5] = ledColor2.green
+                dataled[6] = ledColor2.blue
+            }
+
+            'T' -> {
+                //Animación
+                dataled[0] = 0x03
+                //Color Led 2
+                dataled[4] = ledColor2.red
+                dataled[5] = ledColor2.green
+                dataled[6] = ledColor2.blue
+                //Color Led 3
+                dataled[7] = ledColor3.red
+                dataled[8] = ledColor3.green
+                dataled[9] = ledColor3.blue
+            }
+
+            else -> {
+                //Animación
+                dataled[0] = 0x01
+            }
+        }
+
+        //sendDataToCharacteristic(dataled)
+    }
+
+    //endregion
 }
