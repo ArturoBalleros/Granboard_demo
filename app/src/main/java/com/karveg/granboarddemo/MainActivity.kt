@@ -38,7 +38,7 @@ import com.karveg.granboarddemo.models.DartData
 import com.karveg.granboarddemo.models.LedData
 import com.karveg.granboarddemo.models.RGB
 import com.karveg.granboarddemo.store.DataStore
-import com.lb.vector_child_finder_library.VectorChildFinder
+//import com.lb.vector_child_finder_library.VectorChildFinder
 import java.util.UUID
 import kotlin.math.abs
 
@@ -141,20 +141,14 @@ class MainActivity : ComponentActivity() {
 
         }
 
+        buttonConnect.text = "Disconnected"
         buttonConnect.setOnClickListener {
-
-            val shot = DataStore.dartDataList.find { it.pathBoard == editText.text.toString() }!!
-            showShot(shot.dataBoard)
-
-            /*   if (connected) {
-                   //Desconectarse
-               } else {
-
-               }
-
-             */
+            if (connected) {
+                gattDeviceDiana?.close()
+                runOnUiThread { buttonConnect.text = "Disconnected"; listView.visibility = View.VISIBLE }
+                connected = false;
+            }
         }
-
     }
 
     //region Permisos
