@@ -26,6 +26,8 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import com.karveg.granboarddemo.models.LedData
+import com.karveg.granboarddemo.store.DataStore
 import java.util.UUID
 import kotlin.math.abs
 
@@ -77,8 +79,6 @@ class MainActivity : ComponentActivity() {
         scanResults = mutableListOf()
 
         eventsUI()
-
-
     }
 
     override fun onResume() {
@@ -120,12 +120,9 @@ class MainActivity : ComponentActivity() {
             Log.e("GattCallback", item)
 
             deviceConnected = scanResults.find { it.address.lowercase() == item.lowercase() }
-            if (deviceConnected != null) {
-                //val device: BluetoothDevice = deviceConnected as BluetoothDevice
+            if (deviceConnected != null)
                  gattDeviceDiana = deviceConnected!!.connectGatt(this, false, gattCallback)
 
-
-            }
         }
 
         buttonConnect.setOnClickListener {
