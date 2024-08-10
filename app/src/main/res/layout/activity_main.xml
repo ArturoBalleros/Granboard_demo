@@ -15,7 +15,15 @@
     <ListView
         android:id="@+id/devices_list"
         android:layout_width="match_parent"
-        android:layout_height="200dp" />
+        android:layout_height="100dp" />
+
+    <EditText
+        android:id="@+id/text"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:text="D20"
+        />
+
 
     <Button
         android:id="@+id/stateConnection"

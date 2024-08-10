@@ -15,22 +15,27 @@ import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanResult
 import android.content.Context
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.widget.ArrayAdapter
 import android.widget.Button
+import android.widget.EditText
+import android.widget.ImageView
 import android.widget.ListView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
+import com.karveg.granboarddemo.models.DartData
 import com.karveg.granboarddemo.models.LedData
 import com.karveg.granboarddemo.store.DataStore
+import com.lb.vector_child_finder_library.VectorChildFinder
 import java.util.UUID
 import kotlin.math.abs
-
 
 class MainActivity : ComponentActivity() {
 
@@ -48,6 +53,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var buttonScan: Button
     private lateinit var buttonConnect: Button
     private lateinit var listView: ListView
+    private lateinit var editText: EditText
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -104,6 +110,7 @@ class MainActivity : ComponentActivity() {
         buttonScan = findViewById(R.id.scan_button)
         buttonConnect = findViewById(R.id.stateConnection)
         listView = findViewById(R.id.devices_list)
+        editText = findViewById(R.id.text)
 
         buttonScan.setOnClickListener {
             if (!scanning) startScan() else stopScan()
@@ -121,16 +128,47 @@ class MainActivity : ComponentActivity() {
 
             deviceConnected = scanResults.find { it.address.lowercase() == item.lowercase() }
             if (deviceConnected != null)
-                 gattDeviceDiana = deviceConnected!!.connectGatt(this, false, gattCallback)
+                gattDeviceDiana = deviceConnected!!.connectGatt(this, false, gattCallback)
 
         }
 
         buttonConnect.setOnClickListener {
-            if (connected) {
-                //Desconectarse
-            } else {
+
+
+            // Obtener la referencia al ImageView
+            val imageView = findViewById<ImageView>(R.id.imageView)
+
+
+            // Obtener el VectorDrawable
+            val vectorDrawable = ContextCompat.getDrawable(this, R.drawable.dartboard)
+
+            imageView.setImageDrawable(vectorDrawable)
+            val vector: VectorChildFinder = VectorChildFinder(this, R.drawable.dartboard, imageView)
+
+            val dataDart: DartData? = DataStore.dartDataList.find { it.value == editText.text.toString() }
+
+            if(dataDart != null){
+
+                val x = vector.findPathByName(dataDart.pathBoard)
+                if (x != null) x.setFillColor(Color.BLUE)
+
+                val l = vector.findPathByName(dataDart.pathLbl)
+                if (l != null) l.setFillColor(Color.YELLOW)
+
+                imageView.invalidate();
 
             }
+
+
+
+
+            /*   if (connected) {
+                   //Desconectarse
+               } else {
+
+               }
+
+             */
         }
 
     }
