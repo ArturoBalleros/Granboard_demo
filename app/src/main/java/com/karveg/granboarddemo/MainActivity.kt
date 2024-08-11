@@ -161,7 +161,7 @@ class MainActivity : ComponentActivity() {
         buttonSend.setOnClickListener {
             if (editText.text != null) {
                 val dataDart: DartData? =
-                    DataStore.dartDataList.find { it.pathBoard == editText.text.toString() }
+                    DataStore.dartDataList.find { it.pathBoard == editText.text.toString().uppercase() }
                 if (dataDart != null) {
                     showShot(dataDart.dataBoard)
                     editText.setText("")
