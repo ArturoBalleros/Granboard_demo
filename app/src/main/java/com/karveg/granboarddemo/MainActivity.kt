@@ -152,7 +152,9 @@ class MainActivity : ComponentActivity() {
             if (connected) {
                 gattDeviceDiana?.close()
                 runOnUiThread {
-                    buttonConnect.text = "Disconnected"; listView.visibility = View.VISIBLE
+                    listView.visibility = View.VISIBLE
+                    buttonScan.visibility = View.VISIBLE
+                    buttonConnect.visibility = View.GONE
                 }
                 connected = false;
             }
@@ -249,7 +251,11 @@ class MainActivity : ComponentActivity() {
         override fun onConnectionStateChange(gatt: BluetoothGatt?, status: Int, newState: Int) {
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 Log.i("GattCallback", "Conectado al GATT server.")
-                runOnUiThread { buttonConnect.text = "Connected"; listView.visibility = View.GONE }
+                runOnUiThread {
+                    buttonConnect.visibility = View.VISIBLE
+                    listView.visibility = View.GONE
+                    buttonScan.visibility = View.GONE
+                }
                 connected = true;
                 gatt?.discoverServices()
             }
