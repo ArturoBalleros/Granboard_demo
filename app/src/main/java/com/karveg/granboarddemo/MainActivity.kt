@@ -151,19 +151,24 @@ class MainActivity : ComponentActivity() {
         buttonConnect.setOnClickListener {
             if (connected) {
                 gattDeviceDiana?.close()
+                gattDeviceDiana = null
+                scanResults.clear()
+                deviceList.clear()
+                connected = false;
                 runOnUiThread {
                     listView.visibility = View.VISIBLE
                     buttonScan.visibility = View.VISIBLE
                     buttonConnect.visibility = View.GONE
                 }
-                connected = false;
             }
         }
 
         buttonSend.setOnClickListener {
             if (editText.text != null) {
                 val dataDart: DartData? =
-                    DataStore.dartDataList.find { it.pathBoard == editText.text.toString().uppercase() }
+                    DataStore.dartDataList.find {
+                        it.pathBoard == editText.text.toString().uppercase()
+                    }
                 if (dataDart != null) {
                     showShot(dataDart.dataBoard)
                     editText.setText("")
